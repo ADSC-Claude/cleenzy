@@ -1,18 +1,13 @@
 import { createClient } from "./supabase/server";
+import { isSupabaseConfigured } from "./env";
 import type { Service, ServiceArea, TimeSlot } from "./types";
 
 /**
- * Phase 1 ships before the Supabase project exists, and a misconfigured
- * deployment should show an honest banner rather than a stack trace. Every
- * reader below returns an empty result when the backend is unreachable, and
- * pages surface `configured: false` to explain why a list is empty.
+ * Every reader below returns an empty result when the backend is unreachable,
+ * so a misconfigured deployment shows an honest banner rather than a stack
+ * trace.
  */
-export function isSupabaseConfigured(): boolean {
-  return Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-  );
-}
+export { isSupabaseConfigured } from "./env";
 
 async function safe<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
   if (!isSupabaseConfigured()) return fallback;

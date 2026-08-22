@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { LoginForm } from "./form";
 import { Alert } from "@/components/ui";
+import { isSupabaseConfigured } from "@/lib/env";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +18,17 @@ export default async function LoginPage({
       <p className="mt-1 text-sm text-ink-600">
         Customers and staff sign in here.
       </p>
+
+      {!isSupabaseConfigured() && (
+        <div className="mt-5">
+          <Alert tone="warn">
+            Sign-in is not connected yet. Add your Supabase environment
+            variables and apply the migrations in{" "}
+            <code>supabase/migrations</code> to enable accounts and the admin
+            area.
+          </Alert>
+        </div>
+      )}
 
       {error === "inactive" && (
         <div className="mt-5">
