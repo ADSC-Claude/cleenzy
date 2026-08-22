@@ -14,4 +14,5 @@ for f in supabase/migrations/*.sql; do
   psql -h "$HOST" -p "$PORT" -U postgres -d $DB -q -v ON_ERROR_STOP=1 -f "$f"
 done
 psql -h "$HOST" -p "$PORT" -U postgres -d $DB -v ON_ERROR_STOP=1 -f supabase/tests/01_order_logic.sql
-echo "OK — schema and order logic verified"
+psql -h "$HOST" -p "$PORT" -U postgres -d $DB -v ON_ERROR_STOP=1 -f supabase/tests/02_rls.sql
+echo "OK — schema, order logic and access model verified"
