@@ -1,11 +1,11 @@
 \set ON_ERROR_STOP on
 -- Verifies the access model actually holds in Postgres, not just in the UI.
 
--- Supabase grants these by default; the local shim must do it explicitly.
-grant usage on schema public to anon, authenticated;
-grant select, insert, update, delete on all tables in schema public to authenticated;
-grant select on all tables in schema public to anon;
-grant execute on all functions in schema public to anon, authenticated;
+-- No blanket grants here on purpose. An earlier version of this file granted
+-- every table to anon and authenticated with a comment claiming Supabase does
+-- it by default. That masked a real bug: migration 0006 was missing, so on a
+-- real project every query failed with "permission denied for table". The
+-- tests must exercise the grants the migrations actually ship.
 
 -- Test accounts, one per role.
 insert into auth.users (id, email) values
@@ -86,12 +86,32 @@ commit;
 \echo '=== ANONYMOUS VISITOR ==='
 begin;
 set local role anon;
-\echo 'services readable (expect 8 — the public price list):'
-select count(*) as services_visible from public.services;
-\echo 'orders readable (expect 0):'
-select count(*) as orders_visible from public.orders;
-\echo 'order_counters readable (expect 0 — RLS on, no policy):'
-select count(*) as counters_visible from public.order_counters;
+\echo 'public catalogue readable (price list, slots, areas, public settings):'
+select (select count(*) from public.services)      as services,
+       (select count(*) from public.time_slots)    as slots,
+       (select count(*) from public.service_areas) as areas,
+       (select count(*) from public.settings)      as settings_public_only;
+
+-- Anon is refused on the private tables at the GRANT layer, before RLS is
+-- even consulted, so these are privilege checks rather than row counts.
+-- Selecting from them would raise "permission denied", not return zero.
+\echo 'private tables must not be granted to anon (all expect f):'
+select 'orders'         as tbl, has_table_privilege('anon','public.orders','SELECT')         as granted
+union all select 'payments',       has_table_privilege('anon','public.payments','SELECT')
+union all select 'profiles',       has_table_privilege('anon','public.profiles','SELECT')
+union all select 'order_items',    has_table_privilege('anon','public.order_items','SELECT')
+union all select 'delivery_tasks', has_table_privilege('anon','public.delivery_tasks','SELECT')
+union all select 'order_counters', has_table_privilege('anon','public.order_counters','SELECT')
+union all select 'laundry_queue',  has_table_privilege('anon','public.laundry_queue','SELECT')
+union all select 'rider_tasks',    has_table_privilege('anon','public.rider_tasks','SELECT');
+
+\echo 'internal functions must not be executable by anon (all expect f):'
+select 'next_order_number'    as fn, has_function_privilege('anon','public.next_order_number()','EXECUTE') as granted
+union all select 'handle_new_user',  has_function_privilege('anon','public.handle_new_user()','EXECUTE')
+union all select 'log_order_status', has_function_privilege('anon','public.log_order_status()','EXECUTE');
+
+\echo 'track_order stays open to anon (expect t):'
+select has_function_privilege('anon','public.track_order(text,text)','EXECUTE') as granted;
 
 commit;
 

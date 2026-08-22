@@ -32,11 +32,12 @@ The app runs without a database — pages render an honest "not connected yet"
 notice rather than crashing — but nothing can be booked until you complete the
 setup below.
 
-### 1. Create a Supabase project
+### 1. Point at a Supabase project
 
 Any region works; `ap-southeast-1` (Singapore) is the closest to the
-Philippines. Copy the project URL, anon key and service-role key into
-`.env.local`.
+Philippines. Copy the project URL, anon (publishable) key and service-role key
+into `.env.local`. The service-role key is a secret — it bypasses RLS, so it
+belongs only in server-side environment variables, never in the browser.
 
 ### 2. Apply the migrations
 
@@ -54,6 +55,15 @@ supabase db push
 | `0002_functions_triggers.sql` | Order numbering, derived totals, audit trail |
 | `0003_rls.sql` | Row level security, restricted views, tracking RPC |
 | `0004_seed.sql` | Starting services, time slots, coverage areas, settings |
+| `0005_harden_function_grants.sql` | Revokes the default PUBLIC execute grant, pins `search_path` |
+| `0006_table_grants.sql` | Table privileges for `anon` and `authenticated` |
+
+Run all six in order. `0006` is not optional: RLS decides which *rows* a caller
+may touch, but Postgres checks table `GRANT`s first, so without it every query
+through the anon or authenticated key fails with `permission denied for table`
+however correct the policies are. A stock Supabase project usually grants this
+through default privileges; that is not guaranteed on a project whose schema
+was created by other tooling, so the migrations grant explicitly.
 
 ### 3. Create the first owner
 
@@ -76,8 +86,15 @@ logged rather than sent, so nothing breaks in development.
 
 `supabase/tests/` applies every migration to a throwaway local Postgres and
 exercises the parts worth being sure about: order totals, re-weighing,
-payment status, order numbering, and the whole access model including two
-negative cases.
+payment status, order numbering, and the whole access model including the
+negative cases — laundry staff cannot leave the laundry stages, a rider cannot
+touch another rider's leg, and `anon` is refused on every private table and
+internal function.
+
+The harness deliberately issues **no** grants of its own. An earlier version
+granted every table to `anon` and `authenticated` "because Supabase does it by
+default", which made the suite pass while the real deployment was broken. The
+tests now exercise exactly the privileges the migrations ship.
 
 ```bash
 # with a local postgres listening on port 5433
