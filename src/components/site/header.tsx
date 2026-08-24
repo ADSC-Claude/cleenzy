@@ -3,94 +3,103 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { ArrowRight, Menu, X } from "lucide-react";
 import { Logo } from "./logo";
 import { cn } from "@/lib/cn";
 
 const LINKS = [
-  { href: "/services", label: "Services & Pricing" },
-  { href: "/book", label: "Book" },
+  { href: "/", label: "Home" },
+  { href: "/services", label: "Services" },
+  { href: "/#how-it-works", label: "How It Works" },
   { href: "/track", label: "Track Order" },
-  { href: "/contact", label: "Contact" },
+  { href: "/contact", label: "FAQ" },
 ];
 
 export function SiteHeader() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
+  const isCurrent = (href: string) =>
+    href === "/" ? pathname === "/" : pathname === href.split("#")[0] && !href.includes("#");
+
   return (
-    <header className="sticky top-0 z-40 border-b border-ink-200 bg-white/95 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-        <Logo />
+    <header className="sticky top-0 z-40 px-3 pt-3 sm:px-5 sm:pt-4">
+      <div className="mx-auto max-w-6xl rounded-[28px] border border-white/60 bg-white/95 shadow-[0_10px_35px_-18px_rgba(11,27,51,0.35)] backdrop-blur">
+        <div className="flex h-16 items-center justify-between pl-5 pr-3 sm:pl-7 sm:pr-3.5">
+          <Logo />
 
-        <nav className="hidden items-center gap-1 md:flex">
-          {LINKS.map((l) => (
+          <nav className="hidden items-center gap-0.5 lg:flex">
+            {LINKS.map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                className={cn(
+                  "relative rounded-full px-3.5 py-2 text-sm font-semibold transition-colors",
+                  isCurrent(l.href)
+                    ? "text-accent-600 after:absolute after:inset-x-3.5 after:-bottom-0.5 after:h-0.5 after:rounded-full after:bg-accent-600"
+                    : "text-ink-600 hover:text-ink-900",
+                )}
+              >
+                {l.label}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="hidden items-center gap-1 lg:flex">
             <Link
-              key={l.href}
-              href={l.href}
-              className={cn(
-                "rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                pathname === l.href
-                  ? "text-accent-700"
-                  : "text-ink-600 hover:bg-ink-50 hover:text-ink-900",
-              )}
+              href="/login"
+              className="rounded-full px-3.5 py-2 text-sm font-semibold text-ink-600 hover:text-ink-900"
             >
-              {l.label}
+              Log in
             </Link>
-          ))}
-          <Link
-            href="/login"
-            className="ml-2 rounded-lg px-3 py-2 text-sm font-medium text-ink-600 hover:text-ink-900"
-          >
-            Log in
-          </Link>
-          <Link
-            href="/book"
-            className="ml-1 rounded-lg bg-accent-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-accent-700"
-          >
-            Book Now
-          </Link>
-        </nav>
-
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          aria-label={open ? "Close menu" : "Open menu"}
-          aria-expanded={open}
-          className="grid h-10 w-10 place-items-center rounded-lg text-ink-700 hover:bg-ink-100 md:hidden"
-        >
-          {open ? <X size={20} /> : <Menu size={20} />}
-        </button>
-      </div>
-
-      {open && (
-        <nav className="border-t border-ink-200 bg-white px-4 py-3 md:hidden">
-          {LINKS.map((l) => (
             <Link
-              key={l.href}
-              href={l.href}
+              href="/book"
+              className="inline-flex items-center gap-1.5 rounded-full bg-accent-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-accent-700"
+            >
+              Book a Pickup <ArrowRight size={15} />
+            </Link>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
+            className="grid h-10 w-10 place-items-center rounded-full text-ink-700 hover:bg-ink-100 lg:hidden"
+          >
+            {open ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
+
+        {open && (
+          <nav className="border-t border-ink-100 px-4 py-3 lg:hidden">
+            {LINKS.map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                onClick={() => setOpen(false)}
+                className="block rounded-2xl px-3 py-3 text-sm font-semibold text-ink-700 hover:bg-ink-50"
+              >
+                {l.label}
+              </Link>
+            ))}
+            <Link
+              href="/login"
               onClick={() => setOpen(false)}
-              className="block rounded-lg px-3 py-3 text-sm font-medium text-ink-700 hover:bg-ink-50"
+              className="block rounded-2xl px-3 py-3 text-sm font-semibold text-ink-700 hover:bg-ink-50"
             >
-              {l.label}
+              Log in
             </Link>
-          ))}
-          <Link
-            href="/login"
-            onClick={() => setOpen(false)}
-            className="block rounded-lg px-3 py-3 text-sm font-medium text-ink-700 hover:bg-ink-50"
-          >
-            Log in
-          </Link>
-          <Link
-            href="/book"
-            onClick={() => setOpen(false)}
-            className="mt-2 block rounded-lg bg-accent-600 px-3 py-3 text-center text-sm font-medium text-white"
-          >
-            Book Now
-          </Link>
-        </nav>
-      )}
+            <Link
+              href="/book"
+              onClick={() => setOpen(false)}
+              className="mt-2 flex items-center justify-center gap-1.5 rounded-full bg-accent-600 px-3 py-3 text-center text-sm font-semibold text-white"
+            >
+              Book a Pickup <ArrowRight size={15} />
+            </Link>
+          </nav>
+        )}
+      </div>
     </header>
   );
 }

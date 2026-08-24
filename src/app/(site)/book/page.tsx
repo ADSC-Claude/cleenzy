@@ -16,8 +16,8 @@ export const metadata: Metadata = {
 
 export default async function BookPage({
   searchParams,
-}: { searchParams: Promise<{ service?: string }> }) {
-  const { service } = await searchParams;
+}: { searchParams: Promise<{ service?: string; area?: string }> }) {
+  const { service, area } = await searchParams;
 
   const [services, areas, slots, payments] = await Promise.all([
     getServices(), getServiceAreas(), getTimeSlots(), getPaymentSettings(),
@@ -88,6 +88,7 @@ export default async function BookPage({
         signedInPhone={profile?.phone ?? ""}
         signedInEmail={profile?.email ?? ""}
         preselectSlug={service}
+        preselectAreaId={area}
       />
     </>
   );

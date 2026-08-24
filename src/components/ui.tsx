@@ -34,7 +34,7 @@ export function Button({
   return (
     <button
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-lg font-medium",
+        "inline-flex items-center justify-center gap-2 rounded-full font-semibold",
         "transition-colors disabled:cursor-not-allowed",
         BUTTON_VARIANT[variant], BUTTON_SIZE[size], className,
       )}
@@ -103,7 +103,7 @@ export function PaymentBadge({ status }: { status: PaymentStatus }) {
 /* ------------------------------------------------------------------- Input */
 
 const FIELD_BASE =
-  "w-full rounded-lg border border-ink-200 bg-white px-3 text-ink-900 " +
+  "w-full rounded-xl border border-ink-200 bg-white px-3 text-ink-900 " +
   "placeholder:text-ink-400 focus:border-accent-500 focus:outline-none " +
   "focus:ring-2 focus:ring-accent-500/20 disabled:bg-ink-50 disabled:text-ink-400";
 

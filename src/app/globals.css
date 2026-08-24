@@ -1,40 +1,50 @@
 @import "tailwindcss";
 
 /* ---------------------------------------------------------------------------
-   Cleenzy design tokens — one accent (teal), generous white space.
+   Cleenzy design tokens — "Clean clothes. Zero stress."
+   Royal blue accent, blue-tinted neutrals, generous rounding, friendly type.
    --------------------------------------------------------------------------- */
 @theme {
-  --color-ink-50:  #f6f7f8;
-  --color-ink-100: #eceef1;
-  --color-ink-200: #d9dde3;
-  --color-ink-300: #b6bec9;
-  --color-ink-400: #8794a5;
-  --color-ink-500: #64748b;
-  --color-ink-600: #4a5568;
-  --color-ink-700: #364152;
-  --color-ink-800: #212c3d;
-  --color-ink-900: #131c2b;
+  --color-ink-50:  #f5f7fb;
+  --color-ink-100: #e9eef6;
+  --color-ink-200: #d5deeb;
+  --color-ink-300: #b0bed3;
+  --color-ink-400: #8093b0;
+  --color-ink-500: #5d7089;
+  --color-ink-600: #43536d;
+  --color-ink-700: #2f3d55;
+  --color-ink-800: #1a2942;
+  --color-ink-900: #0b1b33;
 
-  --color-accent-50:  #eefbf8;
-  --color-accent-100: #d3f5ee;
-  --color-accent-200: #a9ebdf;
-  --color-accent-300: #73dbcc;
-  --color-accent-400: #3cc2b3;
-  --color-accent-500: #17a79a;
-  --color-accent-600: #0d8b82;
-  --color-accent-700: #0f6f6a;
-  --color-accent-800: #115955;
-  --color-accent-900: #124a48;
+  --color-accent-50:  #eef4ff;
+  --color-accent-100: #dce8fe;
+  --color-accent-200: #c0d5fd;
+  --color-accent-300: #94b7fa;
+  --color-accent-400: #6394f6;
+  --color-accent-500: #3d74f0;
+  --color-accent-600: #2563eb;
+  --color-accent-700: #1d4fd7;
+  --color-accent-800: #1e42ac;
+  --color-accent-900: #1e3a8a;
 
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* Pastel chips for illustrated icons — hero, steps, service tiles. */
+  --color-pastel-blue:     #dbeafe;
+  --color-pastel-mint:     #dcf3e0;
+  --color-pastel-lime:     #edf5d4;
+  --color-pastel-lavender: #e9e4fb;
+  --color-pastel-cream:    #f6efe3;
+  --color-pastel-note:     #f5f083;
 
-  --radius-card: 1rem;
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-hand: var(--font-caveat), "Comic Sans MS", cursive;
+
+  --radius-card: 1.25rem;
 }
 
 :root {
-  --background: #ffffff;
-  --surface: #f8fafb;
-  --foreground: #131c2b;
+  --background: #f2f6fc;
+  --surface: #ffffff;
+  --foreground: #0b1b33;
   color-scheme: light;
 }
 
@@ -46,6 +56,8 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
+
+.font-hand { font-family: var(--font-hand); }
 
 /* Focus ring: visible for keyboard users, quiet for mouse users. */
 :focus-visible {
