@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   Cleenzy design tokens — one accent (teal), generous white space.
+   --------------------------------------------------------------------------- */
+@theme {
+  --color-ink-50:  #f6f7f8;
+  --color-ink-100: #eceef1;
+  --color-ink-200: #d9dde3;
+  --color-ink-300: #b6bec9;
+  --color-ink-400: #8794a5;
+  --color-ink-500: #64748b;
+  --color-ink-600: #4a5568;
+  --color-ink-700: #364152;
+  --color-ink-800: #212c3d;
+  --color-ink-900: #131c2b;
+
+  --color-accent-50:  #eefbf8;
+  --color-accent-100: #d3f5ee;
+  --color-accent-200: #a9ebdf;
+  --color-accent-300: #73dbcc;
+  --color-accent-400: #3cc2b3;
+  --color-accent-500: #17a79a;
+  --color-accent-600: #0d8b82;
+  --color-accent-700: #0f6f6a;
+  --color-accent-800: #115955;
+  --color-accent-900: #124a48;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --radius-card: 1rem;
+}
+
+:root {
+  --background: #ffffff;
+  --surface: #f8fafb;
+  --foreground: #131c2b;
+  color-scheme: light;
+}
+
+* { border-color: var(--color-ink-200); }
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Focus ring: visible for keyboard users, quiet for mouse users. */
+:focus-visible {
+  outline: 2px solid var(--color-accent-600);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Thermal receipt printing — 58mm and 80mm rolls.
+   --------------------------------------------------------------------------- */
+@media print {
+  .no-print { display: none !important; }
+  body { background: #fff; }
+  .receipt { width: 100%; margin: 0; padding: 0; box-shadow: none; }
+}
+
+@page { margin: 4mm; }
