@@ -10,9 +10,10 @@ export default async function StaffPage() {
   const me = await requireRole("/admin/staff", ["owner", "manager"]);
   const supabase = await createClient();
 
+  // Every profile is either staff or a pending sign-up awaiting a role, so
+  // the owner sees them all here — there are no customer accounts.
   const { data } = await supabase
     .from("profiles").select("*")
-    .neq("role", "customer")
     .order("role")
     .order("full_name");
 
@@ -25,8 +26,8 @@ export default async function StaffPage() {
 
       <div className="mb-5">
         <Alert tone="info">
-          Staff sign up through the normal sign-up page, then you promote them
-          here. New accounts start as customers with no admin access.
+          New staff create an account at <code>/signup</code>, then you assign
+          their role here. A fresh account can&apos;t reach anything until you do.
         </Alert>
       </div>
 

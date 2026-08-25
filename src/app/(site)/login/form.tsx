@@ -33,14 +33,14 @@ export function LoginForm({ next }: { next: string }) {
       </form>
 
       <p className="mt-5 text-center text-sm text-ink-600">
-        New here?{" "}
+        Joining the team?{" "}
         <Link href="/signup" className="font-medium text-accent-700 hover:text-accent-800">
-          Create an account
+          Create a staff account
         </Link>
       </p>
       <p className="mt-2 text-center text-xs text-ink-500">
-        You do not need an account to book — you can{" "}
-        <Link href="/book" className="text-accent-700 hover:underline">book as a guest</Link>.
+        Looking to book a laundry?{" "}
+        <Link href="/book" className="text-accent-700 hover:underline">No account needed</Link>.
       </p>
     </Card>
   );
