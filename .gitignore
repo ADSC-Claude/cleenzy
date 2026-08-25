@@ -32,6 +32,9 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# .env.production carries only public-by-design values (the Supabase URL and
+# publishable key are shipped to every browser); real secrets stay in Vercel.
+!.env.production
 
 # vercel
 .vercel
