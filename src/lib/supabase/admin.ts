@@ -5,8 +5,9 @@ import { createClient } from "@supabase/supabase-js";
  * Service-role client. Bypasses RLS, so it is confined to server actions that
  * have already established who the caller is and what they may do.
  *
- * Its main job is guest bookings: anonymous visitors must be able to place an
- * order without anon ever holding insert rights on public.orders.
+ * Guest bookings do NOT need it — they go through the create_booking
+ * database gateway. This client only records notification history and backs
+ * future server-side features, so the site runs fully without the key.
  */
 export function createAdminClient() {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
