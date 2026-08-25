@@ -33,7 +33,6 @@ export function SiteFooter({ business }: { business: BusinessSettings }) {
             <ul className="mt-3 space-y-2.5 text-sm text-ink-600">
               <li><a href={`tel:${business.phone.replace(/\s/g, "")}`} className="hover:text-accent-600">{business.phone}</a></li>
               <li><a href={`mailto:${business.email}`} className="hover:text-accent-600">{business.email}</a></li>
-              <li><Link href="/login" className="hover:text-accent-600">Staff login</Link></li>
             </ul>
           </div>
         </div>
