@@ -49,11 +49,12 @@ interface Props {
   signedInPhone: string;
   signedInEmail: string;
   preselectSlug?: string;
+  preselectAreaId?: string;
 }
 
 export function BookingWizard({
   services, areas, slots, savedAddresses, payments,
-  signedInName, signedInPhone, signedInEmail, preselectSlug,
+  signedInName, signedInPhone, signedInEmail, preselectSlug, preselectAreaId,
 }: Props) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -71,7 +72,12 @@ export function BookingWizard({
   const [pickupSlot, setPickupSlot] = useState("");
   const [deliveryDate, setDeliveryDate] = useState("");
   const [deliverySlot, setDeliverySlot] = useState("");
-  const [areaId, setAreaId] = useState("");
+  const [areaId, setAreaId] = useState(
+    // Carried over from the landing page's "Book a Pickup" card.
+    preselectAreaId && areas.some((a) => a.id === preselectAreaId)
+      ? preselectAreaId
+      : "",
+  );
   const [savedAddressId, setSavedAddressId] = useState("");
   const [name, setName] = useState(signedInName);
   const [phone, setPhone] = useState(signedInPhone);

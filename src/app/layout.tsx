@@ -1,24 +1,31 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Plus_Jakarta_Sans, Caveat } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
+const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-jakarta",
+  display: "swap",
+});
+
+// Handwritten accents — sticky notes, "Less laundry. More you."
+const caveat = Caveat({
+  subsets: ["latin"],
+  variable: "--font-caveat",
   display: "swap",
 });
 
 export const metadata: Metadata = {
   title: {
-    default: "Cleenzy — Laundry Pickup & Delivery",
+    default: "Cleenzy — Clean clothes. Zero stress.",
     template: "%s · Cleenzy",
   },
   description:
-    "Wash & fold laundry with free pickup and delivery around Metro Manila. " +
+    "We pick up, clean, and deliver your laundry fresh and on time. " +
     "Book in a minute, pay with GCash, cash or bank transfer.",
   openGraph: {
-    title: "Cleenzy — Laundry Pickup & Delivery",
-    description: "Fresh laundry, picked up and delivered.",
+    title: "Cleenzy — Clean clothes. Zero stress.",
+    description: "We pick up, clean, and deliver your laundry fresh and on time.",
     type: "website",
   },
 };
@@ -26,15 +33,15 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#0d8b82",
+  themeColor: "#2563eb",
 };
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en-PH" className={inter.variable}>
-      <body className="min-h-screen bg-white antialiased">{children}</body>
+    <html lang="en-PH" className={`${jakarta.variable} ${caveat.variable}`}>
+      <body className="min-h-screen antialiased">{children}</body>
     </html>
   );
 }
