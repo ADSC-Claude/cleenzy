@@ -2,8 +2,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
 /**
- * Refreshes the Supabase session cookie and turns anonymous hits on /admin
- * away early. Page-level checks in src/lib/auth.ts remain the real guard —
+ * Refreshes the staff session cookie and turns anonymous hits on /admin
+ * away early. Customers have no accounts, so only /admin is guarded. Page-level checks in src/lib/auth.ts remain the real guard —
  * this only saves a wasted render.
  */
 export default async function proxy(request: NextRequest) {
@@ -29,7 +29,7 @@ export default async function proxy(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
-  if (!user && (path.startsWith("/admin") || path.startsWith("/account"))) {
+  if (!user && path.startsWith("/admin")) {
     const login = request.nextUrl.clone();
     login.pathname = "/login";
     login.searchParams.set("next", path);
@@ -40,5 +40,5 @@ export default async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/account/:path*", "/login", "/signup"],
+  matcher: ["/admin/:path*", "/login", "/signup"],
 };

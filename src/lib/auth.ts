@@ -32,7 +32,7 @@ export const getProfile = cache(async (): Promise<Profile | null> => {
 export async function requireStaff(path: string): Promise<Profile> {
   const profile = await getProfile();
   if (!profile) redirect(`/login?next=${encodeURIComponent(path)}`);
-  if (!STAFF_ROLES.includes(profile.role)) redirect("/account");
+  if (!STAFF_ROLES.includes(profile.role)) redirect("/");
   if (!profile.is_active) redirect("/login?error=inactive");
   if (!canAccess(profile.role, path)) redirect(homeFor(profile.role));
   return profile;
@@ -47,8 +47,3 @@ export async function requireRole(
   return profile;
 }
 
-export async function requireCustomer(path: string): Promise<Profile> {
-  const profile = await getProfile();
-  if (!profile) redirect(`/login?next=${encodeURIComponent(path)}`);
-  return profile;
-}

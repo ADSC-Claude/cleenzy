@@ -9,15 +9,25 @@ export const metadata: Metadata = { title: "Sign in", robots: { index: false } }
 
 export default async function LoginPage({
   searchParams,
-}: { searchParams: Promise<{ next?: string; error?: string }> }) {
-  const { next, error } = await searchParams;
+}: { searchParams: Promise<{ next?: string; error?: string; created?: string }> }) {
+  const { next, error, created } = await searchParams;
 
   return (
     <div className="mx-auto max-w-md px-4 py-16 sm:px-6">
-      <h1 className="text-2xl font-semibold tracking-tight text-ink-900">Sign in</h1>
+      <h1 className="text-2xl font-semibold tracking-tight text-ink-900">Staff sign-in</h1>
       <p className="mt-1 text-sm text-ink-600">
-        Customers and staff sign in here.
+        For the Cleenzy team only. Customers don&apos;t need an account —
+        booking and tracking work without one.
       </p>
+
+      {created === "1" && (
+        <div className="mt-5">
+          <Alert tone="success">
+            Account created. Ask the owner to activate it in Admin → Staff,
+            then sign in here.
+          </Alert>
+        </div>
+      )}
 
       {!isSupabaseConfigured() && (
         <div className="mt-5">

@@ -77,8 +77,9 @@ export async function signUp(
 
   if (error) return { error: error.message };
 
+  // New accounts hold no role until the owner assigns one in Admin -> Staff.
   revalidatePath("/", "layout");
-  redirect("/account");
+  redirect("/login?created=1");
 }
 
 export async function signOut() {

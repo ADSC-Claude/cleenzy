@@ -2,23 +2,16 @@
 
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
 import { quote } from "@/lib/pricing";
 import { notify } from "@/lib/notify";
 import { isValidPhPhone, normalisePhone } from "@/lib/format";
 import type { Service, ServiceArea } from "@/lib/types";
 
-const addressSchema = z.object({
-  label: z.string().trim().max(40).default("Home"),
-  recipient_name: z.string().trim().min(2, "Recipient name is required").max(120),
-  phone: z.string().trim().refine(isValidPhPhone, "Enter a valid PH mobile number"),
-  line1: z.string().trim().min(5, "House/street is required").max(200),
-  barangay: z.string().trim().max(100).optional().or(z.literal("")),
-  city: z.string().trim().min(2, "City is required").max(100),
-  province: z.string().trim().max(100).optional().or(z.literal("")),
-  landmark: z.string().trim().max(200).optional().or(z.literal("")),
-  service_area_id: z.string().uuid().nullable().optional(),
-});
+/**
+ * Customers do not have accounts. Every booking is a plain client form:
+ * name, phone, what to wash, when, and where. Orders are keyed to the
+ * mobile number, which is also how tracking works.
+ */
 
 const bookingSchema = z.object({
   customer_name: z.string().trim().min(2, "Please enter your name").max(120),
@@ -38,8 +31,12 @@ const bookingSchema = z.object({
   delivery_slot_id: z.string().uuid().nullable().optional(),
 
   service_area_id: z.string().uuid().nullable().optional(),
-  saved_address_id: z.string().uuid().nullable().optional(),
-  address: addressSchema.nullable().optional(),
+  address: z.object({
+    line1: z.string().trim().min(5, "House/street is required").max(200),
+    barangay: z.string().trim().max(100).optional().or(z.literal("")),
+    city: z.string().trim().min(2, "City is required").max(100),
+    landmark: z.string().trim().max(200).optional().or(z.literal("")),
+  }).nullable().optional(),
 
   payment_method: z.enum(["cash", "gcash", "bank_transfer", "card"]),
   notes: z.string().trim().max(500).optional().or(z.literal("")),
@@ -70,9 +67,11 @@ export async function createBooking(raw: BookingInput): Promise<BookingResult> {
     if (!input.pickup_date || !input.pickup_slot_id) {
       return { ok: false, error: "Choose a pickup date and time slot." };
     }
-    if (!input.saved_address_id && !input.address) {
+    if (!input.address) {
       return { ok: false, error: "Add a pickup address." };
     }
+  } else if (!input.pickup_date) {
+    return { ok: false, error: "Choose a drop-off date." };
   }
 
   let db: ReturnType<typeof createAdminClient>;
@@ -121,40 +120,30 @@ export async function createBooking(raw: BookingInput): Promise<BookingResult> {
     };
   }
 
-  // A signed-in customer's order is linked to their account; guests are not.
-  let customerId: string | null = null;
-  try {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    customerId = user?.id ?? null;
-  } catch {
-    customerId = null;
-  }
+  const isPickup = input.order_type === "pickup_delivery";
+  const phone = normalisePhone(input.customer_phone);
 
-  // Resolve the pickup/delivery address.
-  let addressId: string | null = input.saved_address_id ?? null;
-  if (input.order_type === "pickup_delivery" && !addressId && input.address) {
+  let addressId: string | null = null;
+  if (isPickup && input.address) {
     const a = input.address;
     const { data: inserted, error: addrErr } = await db
       .from("addresses")
       .insert({
-        customer_id: customerId,
-        label: a.label || "Home",
-        recipient_name: a.recipient_name,
-        phone: normalisePhone(a.phone),
+        customer_id: null,
+        label: "Home",
+        recipient_name: input.customer_name,
+        phone,
         line1: a.line1,
         barangay: a.barangay || null,
         city: a.city,
-        province: a.province || null,
         landmark: a.landmark || null,
-        service_area_id: a.service_area_id ?? input.service_area_id ?? null,
+        service_area_id: input.service_area_id ?? null,
       })
       .select("id").single();
     if (addrErr) return { ok: false, error: "Could not save your address. Please try again." };
     addressId = inserted.id as string;
   }
 
-  const isPickup = input.order_type === "pickup_delivery";
   const estimatedWeight = q.lines
     .filter((l) => l.unit === "per_kg")
     .reduce((sum, l) => sum + l.billedQuantity, 0);
@@ -163,19 +152,19 @@ export async function createBooking(raw: BookingInput): Promise<BookingResult> {
     .from("orders")
     .insert({
       order_number: "",             // filled in by the derive_order_amounts trigger
-      customer_id: customerId,
+      customer_id: null,
       customer_name: input.customer_name,
-      customer_phone: normalisePhone(input.customer_phone),
+      customer_phone: phone,
       customer_email: input.customer_email || null,
       order_type: input.order_type,
       status: "placed",
       payment_method: input.payment_method,
-      pickup_date: isPickup ? input.pickup_date : null,
-      pickup_slot_id: isPickup ? input.pickup_slot_id : null,
-      pickup_address_id: isPickup ? addressId : null,
+      pickup_date: input.pickup_date ?? null,
+      pickup_slot_id: isPickup ? (input.pickup_slot_id ?? null) : null,
+      pickup_address_id: addressId,
       delivery_date: input.delivery_date ?? null,
       delivery_slot_id: isPickup ? (input.delivery_slot_id ?? null) : null,
-      delivery_address_id: isPickup ? addressId : null,
+      delivery_address_id: addressId,
       service_area_id: isPickup ? (input.service_area_id ?? null) : null,
       estimated_weight_kg: estimatedWeight > 0 ? estimatedWeight : null,
       pickup_fee: q.pickupFee,
@@ -240,7 +229,7 @@ export async function createBooking(raw: BookingInput): Promise<BookingResult> {
   }
 
   let slotLabel: string | null = null;
-  if (input.pickup_slot_id) {
+  if (isPickup && input.pickup_slot_id) {
     const { data: slot } = await db
       .from("time_slots").select("label").eq("id", input.pickup_slot_id).maybeSingle();
     slotLabel = (slot?.label as string) ?? null;
@@ -253,7 +242,7 @@ export async function createBooking(raw: BookingInput): Promise<BookingResult> {
       orderNumber: order.order_number as string,
       customerName: input.customer_name,
       email: input.customer_email || null,
-      phone: normalisePhone(input.customer_phone),
+      phone,
       total: q.total,
       pickupDate: input.pickup_date ?? null,
       deliveryDate: input.delivery_date ?? null,

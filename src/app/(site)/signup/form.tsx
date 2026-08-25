@@ -23,7 +23,7 @@ export function SignupForm() {
           <Input name="email" type="email" autoComplete="email" required
                  placeholder="you@example.com" />
         </Field>
-        <Field label="Mobile number" hint="So we can send you order updates.">
+        <Field label="Mobile number" hint="So the team can reach you.">
           <Input name="phone" inputMode="tel" autoComplete="tel" placeholder="0917 555 1234" />
         </Field>
         <Field label="Password" required hint="At least 8 characters.">
@@ -33,7 +33,7 @@ export function SignupForm() {
 
         <Button type="submit" disabled={pending} className="w-full">
           {pending ? <><Loader2 size={18} className="animate-spin" /> Creating account…</>
-                   : "Create account"}
+                   : "Create staff account"}
         </Button>
       </form>
 

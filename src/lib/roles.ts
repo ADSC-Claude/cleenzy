@@ -16,7 +16,7 @@ export const ROLE_LABEL: Record<UserRole, string> = {
   laundry_staff: "Laundry Staff",
   cashier: "Cashier",
   rider: "Rider",
-  customer: "Customer",
+  customer: "No access yet",
 };
 
 /**
@@ -53,6 +53,8 @@ export function canAccess(role: UserRole, path: string): boolean {
 export function homeFor(role: UserRole): string {
   if (role === "laundry_staff") return "/admin/queue";
   if (role === "rider") return "/admin/rider";
-  if (role === "customer") return "/account";
+  // 'customer' is the holding role for sign-ups the owner has not yet
+  // approved — they have no destination inside the system.
+  if (role === "customer") return "/";
   return "/admin";
 }

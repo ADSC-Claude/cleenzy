@@ -19,7 +19,7 @@ const ROLE_SCOPE: Record<UserRole, string> = {
   cashier: "Orders and payments",
   laundry_staff: "Laundry queue only",
   rider: "Own pickups and deliveries only",
-  customer: "No admin access",
+  customer: "Nothing — waiting for a role",
 };
 
 export function StaffTable({

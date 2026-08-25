@@ -13,8 +13,7 @@ import { cn } from "@/lib/cn";
  * The tracking page refreshes itself every 20 seconds while an order is still
  * in progress. Supabase Realtime is not usable here: guests are anonymous and
  * RLS deliberately gives anon no read access to orders, so the page re-runs
- * the phone-gated RPC instead. Signed-in customers get live updates on
- * /account, where the session makes Realtime possible.
+ * the phone-gated RPC instead — customers have no accounts by design.
  */
 const POLL_MS = 20_000;
 

@@ -47,12 +47,6 @@ export function SiteHeader() {
 
           <div className="hidden items-center gap-1 lg:flex">
             <Link
-              href="/login"
-              className="rounded-full px-3.5 py-2 text-sm font-semibold text-ink-600 hover:text-ink-900"
-            >
-              Log in
-            </Link>
-            <Link
               href="/book"
               className="inline-flex items-center gap-1.5 rounded-full bg-accent-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-accent-700"
             >
@@ -83,13 +77,6 @@ export function SiteHeader() {
                 {l.label}
               </Link>
             ))}
-            <Link
-              href="/login"
-              onClick={() => setOpen(false)}
-              className="block rounded-2xl px-3 py-3 text-sm font-semibold text-ink-700 hover:bg-ink-50"
-            >
-              Log in
-            </Link>
             <Link
               href="/book"
               onClick={() => setOpen(false)}

@@ -9,7 +9,7 @@ export default async function AdminLayout({
 }: { children: React.ReactNode }) {
   const profile = await getProfile();
   if (!profile) redirect("/login?next=/admin");
-  if (!STAFF_ROLES.includes(profile.role)) redirect("/account");
+  if (!STAFF_ROLES.includes(profile.role)) redirect("/");
   if (!profile.is_active) redirect("/login?error=inactive");
 
   const access = ROLE_ACCESS[profile.role];
