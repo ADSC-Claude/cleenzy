@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Loader2, Save } from "lucide-react";
+import { Eye, EyeOff, Loader2, Save } from "lucide-react";
 import { saveSettings } from "../actions";
 import { Alert, Button, Card, CardTitle, Field, Input, Select } from "@/components/ui";
-import type { BusinessSettings, PaymentSettings } from "@/lib/data";
+import type { BusinessSettings, PaymentSettings, SiteSettings } from "@/lib/data";
 
 interface Operations {
   default_pickup_fee: number;
@@ -18,14 +18,17 @@ export function SettingsForm({
   business: initialBusiness,
   payments: initialPayments,
   operations: initialOperations,
+  site: initialSite,
 }: {
   business: BusinessSettings;
   payments: PaymentSettings;
   operations: Operations;
+  site: SiteSettings;
 }) {
   const [business, setBusiness] = useState(initialBusiness);
   const [payments, setPayments] = useState(initialPayments);
   const [operations, setOperations] = useState(initialOperations);
+  const [site, setSite] = useState(initialSite);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -43,6 +46,58 @@ export function SettingsForm({
     <div className="space-y-5">
       {error && <Alert tone="error">{error}</Alert>}
       {notice && <Alert tone="success">{notice}</Alert>}
+
+      <Card>
+        <CardTitle>Website visibility</CardTitle>
+        <p className="mt-1 text-xs text-ink-500">
+          Hide the customer website while you get ready. Signed-in staff keep
+          full access either way, so you can test booking and tracking before
+          anyone else sees them.
+        </p>
+
+        <div className="mt-4 flex items-start gap-3 rounded-xl border border-ink-100 bg-ink-50 px-4 py-3">
+          {site.status === "live"
+            ? <Eye size={18} className="mt-0.5 shrink-0 text-accent-600" />
+            : <EyeOff size={18} className="mt-0.5 shrink-0 text-ink-500" />}
+          <p className="text-sm text-ink-700">
+            {site.status === "live"
+              ? "The website is live. Anyone with the link can browse and book."
+              : "The website is hidden. Visitors see a “coming soon” page instead."}
+          </p>
+        </div>
+
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <Field
+            label="Status"
+            hint="Takes effect immediately — no redeploy needed."
+          >
+            <Select
+              value={site.status}
+              onChange={(e) => setSite({
+                ...site, status: e.target.value as SiteSettings["status"],
+              })}
+            >
+              <option value="coming_soon">Hidden — show “coming soon”</option>
+              <option value="live">Live — open to customers</option>
+            </Select>
+          </Field>
+          <Field label="Holding page headline">
+            <Input value={site.headline}
+                   onChange={(e) => setSite({ ...site, headline: e.target.value })} />
+          </Field>
+          <Field label="Holding page message" className="sm:col-span-2">
+            <Input value={site.message}
+                   onChange={(e) => setSite({ ...site, message: e.target.value })} />
+          </Field>
+        </div>
+        <Button
+          className="mt-4" disabled={pending}
+          onClick={() => save("site", { ...site }, "Website visibility")}
+        >
+          {pending ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+          Save website visibility
+        </Button>
+      </Card>
 
       <Card>
         <CardTitle>Business details</CardTitle>

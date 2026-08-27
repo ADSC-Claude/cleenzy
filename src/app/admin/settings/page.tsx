@@ -1,6 +1,6 @@
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { getBusiness, getPaymentSettings } from "@/lib/data";
+import { getBusiness, getPaymentSettings, getSiteSettings } from "@/lib/data";
 import { PageHeader } from "@/components/ui";
 import { SettingsForm } from "./form";
 
@@ -18,9 +18,10 @@ export default async function SettingsPage() {
   await requireRole("/admin/settings", ["owner"]);
   const supabase = await createClient();
 
-  const [business, payments, { data: opsRow }] = await Promise.all([
+  const [business, payments, site, { data: opsRow }] = await Promise.all([
     getBusiness(),
     getPaymentSettings(),
+    getSiteSettings(),
     supabase.from("settings").select("value").eq("key", "operations").maybeSingle(),
   ]);
 
@@ -37,6 +38,7 @@ export default async function SettingsPage() {
       />
       <SettingsForm
         business={business} payments={payments} operations={operations}
+        site={site}
       />
     </>
   );

@@ -92,3 +92,43 @@ async function getSetting<T>(key: string, fallback: T): Promise<T> {
 
 export const getBusiness = () => getSetting<BusinessSettings>("business", DEFAULT_BUSINESS);
 export const getPaymentSettings = () => getSetting<PaymentSettings>("payments", DEFAULT_PAYMENTS);
+
+// ---------------------------------------------------------------------------
+// Website visibility
+// ---------------------------------------------------------------------------
+
+export interface SiteSettings {
+  status: "live" | "coming_soon";
+  headline: string;
+  message: string;
+}
+
+const DEFAULT_SITE: SiteSettings = {
+  status: "coming_soon",
+  headline: "Something fresh is coming.",
+  message:
+    "Cleenzy is getting its last load ready. Pickup and delivery bookings open soon.",
+};
+
+/**
+ * Unlike every other reader here, this one fails *closed*: if the settings row
+ * can't be read we hold the holding page rather than expose a site the owner
+ * asked to keep hidden. A deployment with no backend at all is the exception —
+ * that's local development, where the gate would only get in the way.
+ */
+export async function getSiteSettings(): Promise<SiteSettings> {
+  if (!isSupabaseConfigured()) return { ...DEFAULT_SITE, status: "live" };
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("settings").select("value").eq("key", "site").maybeSingle();
+    if (error) throw error;
+    // No row yet means migration 0009 hasn't run: that deployment predates the
+    // switch and was already public, so leave it that way.
+    if (!data) return { ...DEFAULT_SITE, status: "live" };
+    return { ...DEFAULT_SITE, ...(data.value as Partial<SiteSettings>) };
+  } catch (err) {
+    console.error("[cleenzy] site visibility check failed:", err);
+    return DEFAULT_SITE;
+  }
+}
